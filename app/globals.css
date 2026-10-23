@@ -1,0 +1,305 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette — warm ivory & stone base, espresso text, and the brand turquoise
+     (#58dcc4, from tetyanaphotography.com) used sparingly: pure on hairlines and
+     ornaments, tinted for backgrounds, deepened where text must stay legible. */
+  --color-ivory: #f6f1e9;
+  --color-paper: #efe8dc;
+  --color-stone: #e4dbcd;
+  --color-sand: #d5c6ae;
+  --color-travertine: #c4b294;
+  --color-taupe: #74634f;
+  --color-espresso: #2a1d15;
+  --color-espresso-soft: #4a3a2e;
+  --color-aqua: #58dcc4;
+  --color-cyan: #c4eadf;
+  --color-cyan-mist: #d9efe7;
+  --color-cyan-deep: #1f7a6a;
+  --color-line: rgb(42 29 21 / 0.16);
+  --color-line-ivory: rgb(246 241 233 / 0.4);
+
+  --font-serif: var(--font-bodoni), "Didot", "Bodoni 72", serif;
+  --font-sans: var(--font-jost), "Helvetica Neue", Arial, sans-serif;
+
+  --ease-silk: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-veil: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --tracking-label: 0.24em;
+  --tracking-nav: 0.2em;
+}
+
+:root {
+  color-scheme: light;
+  --header-h: 5.5rem;
+}
+
+html {
+  background: var(--color-ivory);
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-ivory);
+  color: var(--color-espresso);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-cyan);
+  color: var(--color-espresso);
+}
+
+:focus-visible {
+  outline: 1px solid var(--color-cyan-deep);
+  outline-offset: 4px;
+}
+
+/* Paper grain — a fixed, very faint noise layer over everything */
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  opacity: 0.07;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.16 0 0 0 0 0.11 0 0 0 0 0.08 0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+@layer components {
+  /* Small spaced uppercase label */
+  .label {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    line-height: 1.6;
+  }
+
+  /* Text link with a hairline that draws in from the left */
+  .hairline-link {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 0.3em;
+  }
+  .hairline-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.7s var(--ease-silk);
+  }
+  .hairline-link:hover::after,
+  .hairline-link:focus-visible::after,
+  .hairline-link[aria-expanded="true"]::after,
+  .hairline-link[aria-current="page"]::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* Same link, but the line is always present and recedes on hover */
+  .underline-link {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 0.35em;
+    background: linear-gradient(currentColor, currentColor) left bottom / 100% 1px no-repeat;
+    transition: background-size 0.8s var(--ease-silk);
+  }
+  .underline-link:hover,
+  .underline-link:focus-visible {
+    background-size: 30% 1px;
+  }
+
+  /* Understated outlined button */
+  .outline-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid currentColor;
+    padding: 0.95em 1.9em;
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: var(--tracking-nav);
+    text-transform: uppercase;
+    line-height: 1;
+    transition:
+      background-color 0.7s var(--ease-silk),
+      color 0.7s var(--ease-silk),
+      border-color 0.7s var(--ease-silk);
+  }
+  .outline-btn:hover,
+  .outline-btn:focus-visible {
+    background-color: var(--color-cyan-deep);
+    border-color: var(--color-cyan-deep);
+    color: var(--color-ivory);
+  }
+  .outline-btn--ivory:hover,
+  .outline-btn--ivory:focus-visible {
+    background-color: var(--color-ivory);
+    border-color: var(--color-ivory);
+    color: var(--color-espresso);
+  }
+
+  .display {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.02;
+  }
+}
+
+/* ---------- Motion: slow fades and image reveals ---------- */
+
+.js [data-reveal="fade"] {
+  opacity: 0;
+  transform: translate3d(0, 1.75rem, 0);
+  transition:
+    opacity 1.6s var(--ease-silk),
+    transform 1.6s var(--ease-silk);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* The observed element stays unclipped (a stone placeholder); the veil inside
+   it lifts away and the photo settles from a slight zoom. */
+.js [data-reveal="image"] > .reveal-veil {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 1.8s var(--ease-veil);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.js [data-reveal="image"] .reveal-inner {
+  transform: scale(1.12);
+  transition: transform 2.6s var(--ease-silk);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js [data-reveal="fade"][data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+.js [data-reveal="image"][data-visible="true"] > .reveal-veil {
+  clip-path: inset(0 0 0 0);
+}
+.js [data-reveal="image"][data-visible="true"] .reveal-inner {
+  transform: scale(1);
+}
+
+/* Hero: slow settle on load */
+@keyframes settle {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.25rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.hero-image {
+  animation: settle 3.2s var(--ease-silk) both;
+}
+.hero-rise {
+  animation: rise 1.8s var(--ease-silk) both;
+  animation-delay: var(--rise-delay, 0.4s);
+}
+
+/* Image hover — a slow, slight push */
+.image-hover img {
+  transition: transform 1.8s var(--ease-silk);
+}
+.image-hover:hover img,
+a:focus-visible .image-hover img {
+  transform: scale(1.035);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+  .js [data-reveal="fade"],
+  .js [data-reveal="image"] .reveal-inner {
+    opacity: 1;
+    transform: none;
+  }
+  .js [data-reveal="image"] > .reveal-veil {
+    clip-path: none;
+  }
+}
+
+/* ---------- Arabic (right-to-left) ---------- */
+
+/* Amiri for headings, IBM Plex Sans Arabic for text; Latin fallbacks keep
+   phone numbers and the "English" switch in the original faces. */
+html[lang="ar"] {
+  --font-serif: var(--font-amiri), var(--font-bodoni), serif;
+  --font-sans: var(--font-plex-arabic), var(--font-jost), sans-serif;
+  --tracking-label: 0;
+  --tracking-nav: 0;
+}
+
+/* Arabic letters join, so no letter-spacing, no caps, slightly larger labels.
+   :lang also catches the "عربي" switch on English pages. */
+.label:lang(ar),
+.outline-btn:lang(ar) {
+  font-family: var(--font-plex-arabic), var(--font-jost), sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 0.8125rem;
+}
+
+/* Naskh needs room for its ascenders and descenders. */
+html[lang="ar"] .display {
+  letter-spacing: 0;
+  line-height: 1.45 !important;
+}
+
+/* No slanted Arabic — emphasis is carried by the lighter tone instead. */
+html[lang="ar"] em {
+  font-style: normal;
+  opacity: 0.78;
+}
+
+html[lang="ar"] body {
+  font-weight: 300;
+  line-height: 1.9;
+}
+
+/* Hairlines draw in from the reading edge. */
+html[dir="rtl"] .hairline-link::after {
+  transform-origin: left;
+}
+html[dir="rtl"] .hairline-link:hover::after,
+html[dir="rtl"] .hairline-link:focus-visible::after,
+html[dir="rtl"] .hairline-link[aria-expanded="true"]::after,
+html[dir="rtl"] .hairline-link[aria-current="page"]::after {
+  transform-origin: right;
+}
+html[dir="rtl"] .underline-link {
+  background-position: right bottom;
+}
